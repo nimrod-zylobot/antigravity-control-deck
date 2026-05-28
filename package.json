@@ -1,0 +1,28 @@
+{
+  "name": "antigravity-dashboard",
+  "version": "1.0.0",
+  "description": "Dynamic local dashboard for Antigravity skills, MCP servers, and plugins.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev:backend": "node server.js",
+    "dev:frontend": "vite",
+    "dev": "node -e \"const { spawn } = require('child_process'); spawn('npm', ['run', 'dev:backend'], { stdio: 'inherit', shell: true }); spawn('npm', ['run', 'dev:frontend'], { stdio: 'inherit', shell: true });\"",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "markdown-it": "^14.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "lucide-react": "^0.395.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.3.1"
+  }
+}
