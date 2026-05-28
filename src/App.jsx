@@ -10,9 +10,7 @@ import {
   Search,
   CheckCircle,
   AlertCircle,
-  Plus,
   Users,
-  Play,
   FolderOpen
 } from 'lucide-react';
 
@@ -21,11 +19,7 @@ import McpViewer from './components/McpViewer.jsx';
 import SkillsViewer from './components/SkillsViewer.jsx';
 import PluginsViewer from './components/PluginsViewer.jsx';
 import Diagnostics from './components/Diagnostics.jsx';
-
-// Feature Components
-import Playground from './components/Playground.jsx';
 import Workspaces from './components/Workspaces.jsx';
-import CreateSkill from './components/CreateSkill.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
 import SubagentsMonitor from './components/SubagentsMonitor.jsx';
 
@@ -172,14 +166,10 @@ export default function App() {
         );
       case 'plugins':
         return <PluginsViewer pluginsData={pluginsData} searchQuery={searchQuery} />;
-      case 'playground':
-        return <Playground mcpData={mcpData} />;
       case 'workspaces':
         return <Workspaces />;
       case 'subagents':
         return <SubagentsMonitor />;
-      case 'create-skill':
-        return <CreateSkill refreshData={fetchData} setActiveTab={setActiveTab} />;
       case 'diagnostics':
         return <Diagnostics systemData={systemData} refreshData={fetchData} />;
       case 'search':
@@ -229,30 +219,12 @@ export default function App() {
           </button>
 
           <button 
-            className={`nav-link ${activeTab === 'playground' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('playground'); setSearchQuery(''); }}
-            style={{ width: '100%', background: 'none', textAlign: 'left' }}
-          >
-            <Play size={16} />
-            <span>Tool Playground</span>
-          </button>
-
-          <button 
             className={`nav-link ${activeTab === 'skills' ? 'active' : ''}`}
             onClick={() => { setActiveTab('skills'); setSearchQuery(''); setSelectedSkill(null); }}
             style={{ width: '100%', background: 'none', textAlign: 'left' }}
           >
             <BookOpen size={16} />
             <span>Skills & Protocols</span>
-          </button>
-
-          <button 
-            className={`nav-link ${activeTab === 'create-skill' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('create-skill'); setSearchQuery(''); }}
-            style={{ width: '100%', background: 'none', textAlign: 'left' }}
-          >
-            <Plus size={16} />
-            <span>Create Skill</span>
           </button>
 
           <button 
@@ -340,9 +312,7 @@ export default function App() {
             <h1 style={{ fontSize: '1.75rem', fontWeight: 700 }}>
               {activeTab === 'home' && `Welcome ${systemData?.username || 'User'}!`}
               {activeTab === 'mcp' && 'Model Context Protocol (MCP) Servers'}
-              {activeTab === 'playground' && 'MCP Tool Playground'}
               {activeTab === 'skills' && 'Skills & Protocols'}
-              {activeTab === 'create-skill' && 'Create Custom Skill'}
               {activeTab === 'plugins' && 'Installed Plugins'}
               {activeTab === 'subagents' && 'Active Subagents'}
               {activeTab === 'workspaces' && 'Workspace Projects'}
@@ -352,9 +322,7 @@ export default function App() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
               {activeTab === 'home' && 'Here is an overview of your connected agent capabilities.'}
               {activeTab === 'mcp' && 'Explore server connections and available LLM tool configurations.'}
-              {activeTab === 'playground' && 'Fill in tool parameters visually to construct valid JSON integration calls.'}
               {activeTab === 'skills' && 'Manage and inspect procedural guidelines injected into Antigravity.'}
-              {activeTab === 'create-skill' && 'Save markdown protocols dynamically to your active skills library.'}
               {activeTab === 'plugins' && 'View installed plugins adding specific features and workspace hooks.'}
               {activeTab === 'subagents' && 'Observe spawned parallel LLM processes thinking and executing tasks.'}
               {activeTab === 'workspaces' && 'Crawl local workspace directories and copy project navigation commands.'}

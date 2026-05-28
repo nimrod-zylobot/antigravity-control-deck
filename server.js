@@ -282,42 +282,7 @@ app.get('/api/system', async (req, res) => {
   }
 });
 
-// Endpoint 5: Save Custom Skill
-app.post('/api/skills/create', async (req, res) => {
-  const { name, description, category, risk, author, tags, bodyMarkdown } = req.body;
-  if (!name || !bodyMarkdown) {
-    return res.status(400).json({ error: 'Name and bodyMarkdown are required' });
-  }
-  
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  const skillFolderPath = path.join(SKILLS_DIR, slug);
-  const skillFilePath = path.join(skillFolderPath, 'SKILL.md');
-  
-  const tagsFormatted = Array.isArray(tags) ? `[${tags.join(', ')}]` : '[]';
-  const yamlContent = `---
-name: ${name}
-description: "${description.replace(/"/g, '\\"')}"
-category: ${category || 'general'}
-risk: ${risk || 'safe'}
-source: local
-date_added: "${new Date().toISOString().split('T')[0]}"
-author: ${author || 'user'}
-tags: ${tagsFormatted}
----
-# Protocol: ${name}
 
-${bodyMarkdown}
-`;
-
-  try {
-    await fs.mkdir(skillFolderPath, { recursive: true });
-    await fs.writeFile(skillFilePath, yamlContent, 'utf-8');
-    res.json({ success: true, path: skillFilePath });
-  } catch (err) {
-    console.error('Failed to create skill:', err);
-    res.status(500).json({ error: 'Failed to save skill file', details: err.message });
-  }
-});
 
 // Endpoint 6: Scan Workspaces
 app.get('/api/workspaces', async (req, res) => {
