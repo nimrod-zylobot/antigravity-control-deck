@@ -10,11 +10,10 @@ import {
   Search,
   CheckCircle,
   AlertCircle,
-  Play,
-  FolderOpen,
-  History,
   Plus,
-  Users
+  Users,
+  Play,
+  FolderOpen
 } from 'lucide-react';
 
 import DashboardHome from './components/DashboardHome.jsx';
@@ -26,7 +25,6 @@ import Diagnostics from './components/Diagnostics.jsx';
 // Feature Components
 import Playground from './components/Playground.jsx';
 import Workspaces from './components/Workspaces.jsx';
-import TaskMonitor from './components/TaskMonitor.jsx';
 import CreateSkill from './components/CreateSkill.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
 import SubagentsMonitor from './components/SubagentsMonitor.jsx';
@@ -178,8 +176,6 @@ export default function App() {
         return <Playground mcpData={mcpData} />;
       case 'workspaces':
         return <Workspaces />;
-      case 'tasks':
-        return <TaskMonitor />;
       case 'subagents':
         return <SubagentsMonitor />;
       case 'create-skill':
@@ -287,15 +283,6 @@ export default function App() {
           </button>
 
           <button 
-            className={`nav-link ${activeTab === 'tasks' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('tasks'); setSearchQuery(''); }}
-            style={{ width: '100%', background: 'none', textAlign: 'left' }}
-          >
-            <History size={16} />
-            <span>Task Monitor</span>
-          </button>
-
-          <button 
             className={`nav-link ${activeTab === 'diagnostics' ? 'active' : ''}`}
             onClick={() => { setActiveTab('diagnostics'); setSearchQuery(''); }}
             style={{ width: '100%', background: 'none', textAlign: 'left' }}
@@ -359,7 +346,6 @@ export default function App() {
               {activeTab === 'plugins' && 'Installed Plugins'}
               {activeTab === 'subagents' && 'Active Subagents'}
               {activeTab === 'workspaces' && 'Workspace Projects'}
-              {activeTab === 'tasks' && 'Live Task Logs'}
               {activeTab === 'diagnostics' && 'System Diagnostics'}
               {activeTab === 'search' && 'Global Search'}
             </h1>
@@ -372,7 +358,6 @@ export default function App() {
               {activeTab === 'plugins' && 'View installed plugins adding specific features and workspace hooks.'}
               {activeTab === 'subagents' && 'Observe spawned parallel LLM processes thinking and executing tasks.'}
               {activeTab === 'workspaces' && 'Crawl local workspace directories and copy project navigation commands.'}
-              {activeTab === 'tasks' && 'Monitor active task terminals and inspect running operation logs.'}
               {activeTab === 'diagnostics' && 'Troubleshoot configuration, verify file paths, and monitor status.'}
               {activeTab === 'search' && 'Search for terms across all servers, tools, skills, and plugins.'}
             </p>
