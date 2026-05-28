@@ -13,7 +13,8 @@ import {
   Play,
   FolderOpen,
   History,
-  Plus
+  Plus,
+  Users
 } from 'lucide-react';
 
 import DashboardHome from './components/DashboardHome.jsx';
@@ -22,12 +23,13 @@ import SkillsViewer from './components/SkillsViewer.jsx';
 import PluginsViewer from './components/PluginsViewer.jsx';
 import Diagnostics from './components/Diagnostics.jsx';
 
-// New Feature Components
+// Feature Components
 import Playground from './components/Playground.jsx';
 import Workspaces from './components/Workspaces.jsx';
 import TaskMonitor from './components/TaskMonitor.jsx';
 import CreateSkill from './components/CreateSkill.jsx';
 import GlobalSearch from './components/GlobalSearch.jsx';
+import SubagentsMonitor from './components/SubagentsMonitor.jsx';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -178,6 +180,8 @@ export default function App() {
         return <Workspaces />;
       case 'tasks':
         return <TaskMonitor />;
+      case 'subagents':
+        return <SubagentsMonitor />;
       case 'create-skill':
         return <CreateSkill refreshData={fetchData} setActiveTab={setActiveTab} />;
       case 'diagnostics':
@@ -265,6 +269,15 @@ export default function App() {
           </button>
 
           <button 
+            className={`nav-link ${activeTab === 'subagents' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('subagents'); setSearchQuery(''); }}
+            style={{ width: '100%', background: 'none', textAlign: 'left' }}
+          >
+            <Users size={16} />
+            <span>Subagents</span>
+          </button>
+
+          <button 
             className={`nav-link ${activeTab === 'workspaces' ? 'active' : ''}`}
             onClick={() => { setActiveTab('workspaces'); setSearchQuery(''); }}
             style={{ width: '100%', background: 'none', textAlign: 'left' }}
@@ -313,7 +326,7 @@ export default function App() {
             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
           
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContext: 'space-between' }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>v1.0.0</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               {connected ? (
@@ -344,6 +357,7 @@ export default function App() {
               {activeTab === 'skills' && 'Skills & Protocols'}
               {activeTab === 'create-skill' && 'Create Custom Skill'}
               {activeTab === 'plugins' && 'Installed Plugins'}
+              {activeTab === 'subagents' && 'Active Subagents'}
               {activeTab === 'workspaces' && 'Workspace Projects'}
               {activeTab === 'tasks' && 'Live Task Logs'}
               {activeTab === 'diagnostics' && 'System Diagnostics'}
@@ -356,6 +370,7 @@ export default function App() {
               {activeTab === 'skills' && 'Manage and inspect procedural guidelines injected into Antigravity.'}
               {activeTab === 'create-skill' && 'Save markdown protocols dynamically to your active skills library.'}
               {activeTab === 'plugins' && 'View installed plugins adding specific features and workspace hooks.'}
+              {activeTab === 'subagents' && 'Observe spawned parallel LLM processes thinking and executing tasks.'}
               {activeTab === 'workspaces' && 'Crawl local workspace directories and copy project navigation commands.'}
               {activeTab === 'tasks' && 'Monitor active task terminals and inspect running operation logs.'}
               {activeTab === 'diagnostics' && 'Troubleshoot configuration, verify file paths, and monitor status.'}

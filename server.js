@@ -428,6 +428,134 @@ app.get('/api/tasks/:id/log', async (req, res) => {
   }
 });
 
+// Helper: Find the latest active conversation folder in the brain directory
+async function getLatestConversationFolder() {
+  try {
+    const conversations = await fs.readdir(BRAIN_DIR);
+    let latestTime = 0;
+    let latestFolder = '';
+    let latestConvId = '';
+    
+    for (const conv of conversations) {
+      const convPath = path.join(BRAIN_DIR, conv);
+      try {
+        const stat = await fs.stat(convPath);
+        if (stat.isDirectory() && stat.mtimeMs > latestTime) {
+          const transcriptPath = path.join(convPath, '.system_generated', 'logs', 'transcript.jsonl');
+          try {
+            await fs.access(transcriptPath);
+            latestTime = stat.mtimeMs;
+            latestFolder = convPath;
+            latestConvId = conv;
+          } catch (e) {}
+        }
+      } catch (e) {}
+    }
+    return { folder: latestFolder, id: latestConvId };
+  } catch (err) {
+    console.error('Error finding latest conversation folder:', err);
+    return null;
+  }
+}
+
+// Endpoint 8: Get Subagents list for the active conversation
+app.get('/api/subagents', async (req, res) => {
+  try {
+    const activeConv = await getLatestConversationFolder();
+    if (!activeConv) {
+      return res.json([]);
+    }
+    
+    // Read parent conversation transcript
+    const parentTranscriptPath = path.join(activeConv.folder, '.system_generated', 'logs', 'transcript.jsonl');
+    let parentContent = '';
+    try {
+      parentContent = await fs.readFile(parentTranscriptPath, 'utf-8');
+    } catch (e) {
+      return res.json([]);
+    }
+    
+    // Extract UUIDs representing other spawned conversations (subagents)
+    const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+    const matches = parentContent.match(uuidRegex) || [];
+    const uniqueIds = [...new Set(matches)].filter(id => id.toLowerCase() !== activeConv.id.toLowerCase());
+    
+    const subagents = [];
+    
+    for (const id of uniqueIds) {
+      const subagentFolder = path.join(BRAIN_DIR, id);
+      try {
+        const stat = await fs.stat(subagentFolder);
+        if (stat.isDirectory()) {
+          const subagentTranscriptPath = path.join(subagentFolder, '.system_generated', 'logs', 'transcript.jsonl');
+          let subagentContent = '';
+          try {
+            subagentContent = await fs.readFile(subagentTranscriptPath, 'utf-8');
+          } catch (e) {}
+          
+          const lines = subagentContent.trim().split('\n').filter(Boolean);
+          const stepsCount = lines.length;
+          
+          let lastStepName = 'Initialized';
+          let lastActivityTime = stat.mtime;
+          let role = 'Subagent';
+          let typeName = 'self';
+          let prompt = '';
+          
+          // Trace metadata from parent transcript
+          const parentLines = parentContent.trim().split('\n').filter(Boolean);
+          for (const line of parentLines) {
+            if (line.includes(id) && line.includes('invoke_subagent')) {
+              try {
+                const parsed = JSON.parse(line);
+                const calls = parsed.tool_calls || [];
+                for (const call of calls) {
+                  if (call.name === 'invoke_subagent') {
+                    const args = call.arguments || {};
+                    const subs = args.Subagents || [];
+                    if (subs.length > 0) {
+                      role = subs[0].Role || role;
+                      typeName = subs[0].TypeName || typeName;
+                      prompt = subs[0].Prompt || prompt;
+                    }
+                  }
+                }
+              } catch (e) {}
+            }
+          }
+          
+          if (lines.length > 0) {
+            try {
+              const lastLine = JSON.parse(lines[lines.length - 1]);
+              lastStepName = lastLine.type || 'Thinking';
+              if (lastLine.tool_calls && lastLine.tool_calls.length > 0) {
+                lastStepName = `Running tool: ${lastLine.tool_calls[0].name}`;
+              }
+              lastActivityTime = lastLine.timestamp || lastActivityTime;
+            } catch (e) {}
+          }
+          
+          subagents.push({
+            id: id,
+            role: role,
+            typeName: typeName,
+            prompt: prompt,
+            stepsCount: stepsCount,
+            lastStep: lastStepName,
+            lastActive: lastActivityTime,
+            status: stepsCount > 0 ? (lastStepName === 'USER_INPUT' ? 'Completed/Waiting' : 'Running') : 'Pending'
+          });
+        }
+      } catch (e) {}
+    }
+    
+    res.json(subagents);
+  } catch (err) {
+    console.error('Error fetching subagents:', err);
+    res.status(500).json({ error: 'Failed to fetch subagents', details: err.message });
+  }
+});
+
 // Serve static frontend files in production if dist exists
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, 'dist')));
